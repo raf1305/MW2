@@ -4,125 +4,129 @@
 
 {% block content %}
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Products</h1>
-</div>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Products</h1>
+    </div>
 
 
-<div class="card">
-    <form action="" method="get" class="card-header">
-        <div class="form-row justify-content-between">
-            <div class="col-md-2">
-                <input type="text" name="title" placeholder="Product Title" class="form-control">
-            </div>
-            <div class="col-md-2">
-                <select name="variant" id="" class="form-control">
-                    <option selected disabled>--Select A Variant--</option>
+    <div class="card">
+        <form action="" method="get" class="card-header">
+            <div class="form-row justify-content-between">
+                <div class="col-md-2">
+                    <input type="text" name="title" placeholder="Product Title" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <select name="variant" id="" class="form-control">
+                        <option value=''>---Select Variant---</option> 
+                        {% for i in all_variants %}
+                        <optgroup label="{{i.title}}">
+                            {% for j in i.values %}
+                                <option value="{{j}}">{{j}}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                </div>
 
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Price Range</span>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Price Range</span>
+                        </div>
+                        <input type="text" name="price_from" aria-label="First name" placeholder="From"
+                               class="form-control">
+                        <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
                     </div>
-                    <input type="text" name="price_from" aria-label="First name" placeholder="From"
-                           class="form-control">
-                    <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="date" placeholder="Date" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary float-right"><i class="fa fa-search"></i></button>
                 </div>
             </div>
-            <div class="col-md-2">
-                <input type="date" name="date" placeholder="Date" class="form-control">
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary float-right"><i class="fa fa-search"></i></button>
-            </div>
-        </div>
-    </form>
+        </form>
 
-    <div class="card-body">
-        <div class="table-response">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Variant</th>
-                    <th width="150px">Action</th>
-                </tr>
-                </thead>
+        <div class="card-body">
+            <div class="table-response">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Variant</th>
+                        <th width="150px">Action</th>
+                    </tr>
+                    </thead>
 
-                <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>T-Shirt <br> Created at : 25-Aug-2020</td>
-                    <td>Quality product in low cost</td>
-                    <td>
-                        <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
+                    <tbody>
+                    {% for i in all_products %}
+                    <tr>
+                        <td>{{forloop.counter0|add:products.start_index}}</td>
+                        <td>{{i.title}} <br> Created at : {{i.created_at}}</td>
+                        <td>Quality product in low cost</td>
+                        <td>
+                            <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
+                                {% for j in i.variants %}
                                 <dt class="col-sm-3 pb-0">
-                                    XL/ Black/ Full
+                                    {{j.variant}}
                                 </dt>
                                 <dd class="col-sm-9">
                                     <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
+                                        <dd class="col-sm-4 pb-0">Price : {{j.price}}</dd>
+                                        <dd class="col-sm-8 pb-0">InStock : {{j.stock}}</dd>
                                     </dl>
                                 </dd>
-                                <dt class="col-sm-3 pb-0">
-                                    XL/ Black/ Half
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
-                                    </dl>
-                                </dd>
-                                <dt class="col-sm-3 pb-0">
-                                    L/ Black/ Full
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
-                                    </dl>
-                                </dd>
-                                <dt class="col-sm-3 pb-0">
-                                    L/ Black/ Half
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
-                                    </dl>
-                                </dd>
+                                {% endfor %}
                             </dl>
-                        <button onclick="$('#variant').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more
-                        </button>
-                    </td>
-                    <td>
-                        <div class="btn-group btn-group-sm">
-                            <a href="" class="btn btn-success">Edit</a>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
+                            <button onclick="$('#variant').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more
+                            </button>
+                        </td>
+                        
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'product:edit.product' i.id %}" class="btn btn-success">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
 
-            </table>
+                </table>
+            </div>
+
         </div>
 
-    </div>
+        <div class="card-footer">
+            <div class="row justify-content-between">
+                <div class="col-md-6">
+                    <p>Showing {{products.start_index}} to {{products.end_index}} out of {{products.paginator.count}}</p>
+                </div>
+                <div class="col-md-2">
 
-    <div class="card-footer">
-        <div class="row justify-content-between">
-            <div class="col-md-6">
-                <p>Showing 1 to 10 out of 100</p>
+                </div>
             </div>
-            <div class="col-md-2">
-
+            <div class="pagination" style="justify-content: center;align-items: center;height: 55px;">
+                <span class="step-links">
+                    {% if products.has_previous %}
+                        <a class="btn btn-sm" style="background:transparent;border-color:#20a8d8;color:black;" href="?page=1{% if request.GET.title %}&title={{request.GET.title}}{% endif %}{% if request.GET.variant %}&variant={{request.GET.variant}}{% endif %}{% if request.GET.price_from %}&price_from={{request.GET.price_from}}{% endif %}{% if request.GET.price_to %}&price_to={{request.GET.price_to}}{% endif %}{% if request.GET.date %}&date={{request.GET.date}}{% endif %}">&laquo; first</a>
+                        <a class="btn btn-sm" style="background:transparent;border-color:#20a8d8;color:black;" href="?page={{ products.previous_page_number }}{% if request.GET.title %}&title={{request.GET.title}}{% endif %}{% if request.GET.variant %}&variant={{request.GET.variant}}{% endif %}{% if request.GET.price_from %}&price_from={{request.GET.price_from}}{% endif %}{% if request.GET.price_to %}&price_to={{request.GET.price_to}}{% endif %}{% if request.GET.date %}&date={{request.GET.date}}{% endif %}">&lsaquo; previous</a>
+                    {% endif %}
+    
+                    {%for num in products.paginator.page_range%}
+                        {%if num == products.number %}
+                          <a class="btn btn-sm" style="background: #20a8d8;color: white;" href="?page={{ products.number }}{% if request.GET.title %}&title={{request.GET.title}}{% endif %}{% if request.GET.variant %}&variant={{request.GET.variant}}{% endif %}{% if request.GET.price_from %}&price_from={{request.GET.price_from}}{% endif %}{% if request.GET.price_to %}&price_to={{request.GET.price_to}}{% endif %}{% if request.GET.date %}&date={{request.GET.date}}{% endif %}">{{num}}</a>
+                        {%elif num < products.number|add:'4' and num > products.number|add:'-4' %}
+                          <a class="btn btn-sm" style="background:transparent;border-color:#20a8d8;color:black;" href="?page={{ num }}{% if request.GET.title %}&title={{request.GET.title}}{% endif %}{% if request.GET.variant %}&variant={{request.GET.variant}}{% endif %}{% if request.GET.price_from %}&price_from={{request.GET.price_from}}{% endif %}{% if request.GET.price_to %}&price_to={{request.GET.price_to}}{% endif %}{% if request.GET.date %}&date={{request.GET.date}}{% endif %}">{{num}}</a>
+                        {%endif%}
+                    {%endfor%}
+    
+                    {% if products.has_next %}
+                        <a class="btn btn-sm" style="background:transparent;border-color:#20a8d8;color:black;" href="?page={{ products.next_page_number }}{% if request.GET.title %}&title={{request.GET.title}}{% endif %}{% if request.GET.variant %}&variant={{request.GET.variant}}{% endif %}{% if request.GET.price_from %}&price_from={{request.GET.price_from}}{% endif %}{% if request.GET.price_to %}&price_to={{request.GET.price_to}}{% endif %}{% if request.GET.date %}&date={{request.GET.date}}{% endif %}">next &rsaquo;</a>
+                        <a class="btn btn-sm" style="background:transparent;border-color:#20a8d8;color:black;" href="?page={{ products.paginator.num_pages }}{% if request.GET.title %}&title={{request.GET.title}}{% endif %}{% if request.GET.variant %}&variant={{request.GET.variant}}{% endif %}{% if request.GET.price_from %}&price_from={{request.GET.price_from}}{% endif %}{% if request.GET.price_to %}&price_to={{request.GET.price_to}}{% endif %}{% if request.GET.date %}&date={{request.GET.date}}{% endif %}">last &raquo;</a>
+                    {% endif %}
+                </span>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

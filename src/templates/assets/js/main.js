@@ -7,6 +7,7 @@ import '../scss/main.scss'
 window.Vue = Vue
 
 Vue.component('create-product', require('./components/product/CreateProduct.vue').default)
+Vue.component('edit-product', require('./components/product/EditProduct.vue').default)
 
 const main = new Vue({
     el: '#app'

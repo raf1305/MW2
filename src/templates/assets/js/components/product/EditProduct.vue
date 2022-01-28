@@ -111,10 +111,27 @@ export default {
     variants: {
       type: Array,
       required: true
+    },
+    product_id: {
+        type: String,
+        required: true
+    },
+    product_name: {
+        type: String,
+        required: true
+    },
+    product_sku: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
     }
   },
   data() {
     return {
+      product_id: '',
       product_name: '',
       product_sku: '',
       description: '',
@@ -190,7 +207,7 @@ export default {
       }
 
 
-      axios.post('http://127.0.0.1:8000/product/create/', product).then(response => {
+      axios.put('http://127.0.0.1:8000/product/edit/'+this.product_id+'/', product).then(response => {
         console.log(response.data);
       }).catch(error => {
         console.log(error);
@@ -202,7 +219,7 @@ export default {
 
   },
   mounted() {
-    console.log('Component mounted.')
+    console.log('Component mounted..')
   }
 }
 </script>
