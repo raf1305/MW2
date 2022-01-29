@@ -3,6 +3,7 @@ from django.views import generic
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
 import ast
 from http.client import HTTPResponse
@@ -13,7 +14,7 @@ from datetime import datetime,timezone
 
 from product.models import Variant,Product,ProductVariant,ProductVariantPrice
 
-@method_decorator(csrf_exempt, name='dispatch')
+# @method_decorator(csrf_exempt, name='dispatch')
 class CreateProductView(generic.TemplateView):
     template_name = 'products/create.html'
 
@@ -23,7 +24,8 @@ class CreateProductView(generic.TemplateView):
         context['product'] = True
         context['variants'] = list(variants.all())
         return context
-    def post(self,request):
+
+    def post(self,request,*args,**kwargs):
         response_ = request.body
         r = ast.literal_eval(response_.decode('utf-8'))
         product_title = r.get('title')
@@ -63,13 +65,12 @@ class CreateProductView(generic.TemplateView):
             except:
                 pass
             temp.save()
-
             # product_variant_prices_obj.append(temp)
         # ProductVariantPrice.objects.bulk_create(product_variant_prices_obj,batch_size=50)
-        return redirect('product:list.product')
+        return HttpResponse("Product Saved Succesfully",status=200)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+# @method_decorator(csrf_exempt, name='dispatch')
 class ProductListView(generic.TemplateView):
     template_name = 'products/list.html'
     paginate_by = 2
@@ -141,38 +142,89 @@ class ProductListView(generic.TemplateView):
         context['all_variants'] = all_variants
         return context
 
-@method_decorator(csrf_exempt, name='dispatch')
+# @method_decorator(csrf_exempt, name='dispatch')
 class ProductEditView(generic.TemplateView):
     template_name = 'products/edit.html'
 
     def get_context_data(self,id, **kwargs):
         context = super(ProductEditView, self).get_context_data(**kwargs)
         variants = Variant.objects.filter(active=True).values('id', 'title')
-        print(variants)
         product_object = Product.objects.get(id=id)
         context['product'] = True
         context['variants'] = list(variants.all())
-        context['product_id'] = product_object.id
-        context['product_obj_name'] = product_object.title
-        context['product_obj_sku'] = product_object.sku
-        context['product_obj_description'] = product_object.description
-        # variants_temp = ProductVariant.objects.select_related('variant').filter(product_id=id).values('variant_id','variant_title')
-        # for i in variants_temp:
-        context['current_variants'] = [{'option':1,'tags':['a','b']}]
+        context['product_obj'] = product_object
 
+        ## generating product variant object to render in edit page
+        variants_temp = ProductVariant.objects.filter(product_id=id).only('variant_id','variant_title')
+        current_variants = []
+        current_variants_temp = {}
+        for i in variants_temp:
+            try:
+                current_variants_temp[i.variant_id].append(i.variant_title)
+            except:
+                current_variants_temp[i.variant_id] = [i.variant_title]
+        for i in current_variants_temp:
+            current_variants.append({'option':i,'tags':current_variants_temp[i]})
+        context['product_variant'] = current_variants
+
+        ## generating product_variant_price object to render in edit page
+        variant_prices = []
+        variant_prices_temp = ProductVariantPrice.objects.select_related('product_variant_one','product_variant_two','product_variant_three').filter(product_id = id)
+        for j in variant_prices_temp:
+            variant_title = ''
+            if j.product_variant_one:
+                variant_title += j.product_variant_one.variant_title + '/'
+            if j.product_variant_two:
+                variant_title += j.product_variant_two.variant_title + '/'
+            if j.product_variant_three:
+                variant_title += j.product_variant_three.variant_title
+            variant_prices.append({'price':j.price,'stock':j.stock,'title':variant_title})
+        context['product_variant_prices'] = variant_prices
         return context
 
-    def put(self,request,id):
+    def put(self,request,id,*args,**kwargs):
         response_ = request.body
         r = ast.literal_eval(response_.decode('utf-8'))
         product_title = r.get('title')
         product_sku = r.get('sku')
         product_description = r.get('description')
+        product_image = r.get('product_image')
+        product_variant = r.get('product_variant')
+        product_variant_prices = r.get('product_variant_prices')
 
         product_object = Product.objects.get(id=id)
         product_object.title = product_title
         product_object.sku = product_sku
         product_object.description = product_description
         product_object.save()
-        return redirect('product:list.product')
+
+        ProductVariantPrice.objects.filter(product_id=id).delete()
+        ProductVariant.objects.filter(product_id=id).delete()
+
+        product_variants_obj = {}
+        for i in product_variant:
+            variant_id = i['option']
+            variant_tags = i['tags']
+            for j in variant_tags:
+                temp = ProductVariant(variant_title = j,variant_id = variant_id,product_id = product_object.id)
+                temp.save()
+                product_variants_obj[j] = temp
+
+        for i in product_variant_prices:
+            title = i['title'].split('/')[:-1]
+            temp = ProductVariantPrice(price = i['price'],stock = i['stock'],product_id = product_object.id)
+            try:
+                temp.product_variant_one = product_variants_obj[title[0]]
+            except:
+                pass
+            try:
+                temp.product_variant_two = product_variants_obj[title[1]]
+            except:
+                pass
+            try:
+                temp.product_variant_three = product_variants_obj[title[2]]
+            except:
+                pass
+            temp.save()
+        return HttpResponse("Product Saved Succesfully",status=200)
 

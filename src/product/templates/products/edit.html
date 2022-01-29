@@ -9,7 +9,7 @@
 </div>
 
 <div id="app">
-    <edit-product :variants="{{variants|safe}}" product_variants="{{current_variants}}" product_id="{{product_id}}" product_name="{{product_obj_name}}" product_sku="{{product_obj_sku}}" description="{{product_obj_description}}"></edit-product>
+    <edit-product csrf="{{ csrf_token }}" :variants="{{variants|safe}}" :product_variant_="{{product_variant|safe}}" :product_variant_prices_="{{product_variant_prices|safe}}" product_id="{{product_obj.id}}" product_name="{{product_obj.title}}" product_sku="{{product_obj.sku}}" description="{{product_obj.description}}"></edit-product>
 </div>
 
 {% endblock %}

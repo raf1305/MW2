@@ -93,6 +93,8 @@
 
     <button @click="saveProduct" type="submit" class="btn btn-lg btn-primary">Save</button>
     <button type="button" class="btn btn-secondary btn-lg">Cancel</button>
+
+    
   </section>
 </template>
 
@@ -128,27 +130,37 @@ export default {
         type: String,
         required: true
     }
+    ,
+    product_variant_:{
+      type:Array,
+      required:true
+    }
+    ,
+    product_variant_prices_:{
+      type:Array,
+      required:true
+    }
+    ,
+    csrf:{
+      type:String,
+      required:true
+    }
   },
   data() {
     return {
-      product_id: '',
-      product_name: '',
-      product_sku: '',
-      description: '',
       images: [],
-      product_variant: [
-        {
-          option: this.variants[0].id,
-          tags: []
-        }
-      ],
-      product_variant_prices: [],
+      product_variant: this.product_variant_,
+      product_variant_prices: this.product_variant_prices_,
       dropzoneOptions: {
         url: 'https://httpbin.org/post',
         thumbnailWidth: 150,
         maxFilesize: 0.5,
         headers: {"My-Awesome-Header": "header value"}
-      }
+      },
+      snackbar: false,
+      text: "",
+      timeout: 2000
+
     }
   },
   methods: {
@@ -157,8 +169,8 @@ export default {
       let all_variants = this.variants.map(el => el.id)
       let selected_variants = this.product_variant.map(el => el.option);
       let available_variants = all_variants.filter(entry1 => !selected_variants.some(entry2 => entry1 == entry2))
-      // console.log(available_variants)
-
+      console.log(available_variants)
+      console.log(this.product_variant);
       this.product_variant.push({
         option: available_variants[0],
         tags: []
@@ -172,7 +184,7 @@ export default {
       this.product_variant.filter((item) => {
         tags.push(item.tags);
       })
-
+      console.log(this.product_variant)
       this.getCombn(tags).forEach(item => {
         this.product_variant_prices.push({
           title: item,
@@ -203,12 +215,22 @@ export default {
         description: this.description,
         product_image: this.images,
         product_variant: this.product_variant,
-        product_variant_prices: this.product_variant_prices
+        product_variant_prices: this.product_variant_prices,
       }
 
 
-      axios.put('http://127.0.0.1:8000/product/edit/'+this.product_id+'/', product).then(response => {
-        console.log(response.data);
+      axios.put('http://127.0.0.1:8000/product/edit/'+this.product_id+'/', product,
+      {
+        headers:{
+          "X-CSRFToken":this.csrf
+        }
+      })
+      .then(response => {
+        console.log(response.status);
+        if (response.status==200){
+          this.snackbar = true
+          this.text = response.data
+        }
       }).catch(error => {
         console.log(error);
       })

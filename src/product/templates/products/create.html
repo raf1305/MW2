@@ -9,7 +9,7 @@
 </div>
 
 <div id="app">
-    <create-product :variants="{{variants|safe}}"></create-product>
+    <create-product csrf="{{csrf_token}}" :variants="{{variants|safe}}"></create-product>
 </div>
 
 {% endblock %}

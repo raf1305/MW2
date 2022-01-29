@@ -111,6 +111,10 @@ export default {
     variants: {
       type: Array,
       required: true
+    },
+    csrf: {
+      type: String,
+      required: true
     }
   },
   data() {
@@ -163,6 +167,7 @@ export default {
           stock: 0
         })
       })
+      console.log(this.product_variant_prices);
     },
 
     // combination algorithm
@@ -190,7 +195,13 @@ export default {
       }
 
 
-      axios.post('http://127.0.0.1:8000/product/create/', product).then(response => {
+      axios.post('http://127.0.0.1:8000/product/create/', product,
+      {
+        headers:{
+          "X-CSRFToken":this.csrf
+        }
+      })
+      .then(response => {
         console.log(response.data);
       }).catch(error => {
         console.log(error);
