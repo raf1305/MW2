@@ -145,6 +145,11 @@ export default {
       type:String,
       required:true
     }
+    ,
+    product_image:{
+      type:Array,
+      required:true
+    }
   },
   data() {
     return {
@@ -209,6 +214,11 @@ export default {
 
     // store product into database
     saveProduct() {
+      this.images = []
+      let accepted_files = this.$refs.myVueDropzone.getAcceptedFiles();
+      for (let i = 0 ; i<accepted_files.length ; i++){
+        this.images.push(accepted_files[i].dataURL)
+      }
       let product = {
         title: this.product_name,
         sku: this.product_sku,
@@ -242,6 +252,9 @@ export default {
   },
   mounted() {
     console.log('Component mounted..')
+    for (let i = 0; i <this.product_image.length;i++){
+      this.$refs.myVueDropzone.manuallyAddFile({name:"Image",size:12345}, "http://localhost:8000"+this.product_image[i]);
+    }
   }
 }
 </script>

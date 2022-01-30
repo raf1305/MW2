@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.decorators.cache import never_cache
 from django.views.static import serve
+from django.contrib.staticfiles.urls import static
 
 from config import settings
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path('', include('authentication.urls')),
     path('product/', include('product.urls'))
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, view=never_cache(serve))

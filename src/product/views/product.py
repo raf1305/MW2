@@ -1,9 +1,11 @@
+import imp
 from django.shortcuts import redirect
 from django.views import generic
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.views import View
 
 import ast
 from http.client import HTTPResponse
@@ -12,7 +14,9 @@ from turtle import title
 from urllib import response
 from datetime import datetime,timezone
 
-from product.models import Variant,Product,ProductVariant,ProductVariantPrice
+from product.models import Variant,Product,ProductVariant,ProductVariantPrice,ProductImage
+from ..utils import fileUrlGenerate
+
 
 # @method_decorator(csrf_exempt, name='dispatch')
 class CreateProductView(generic.TemplateView):
@@ -37,6 +41,20 @@ class CreateProductView(generic.TemplateView):
         
         product_object = Product(title = product_title,sku=product_sku,description = product_description)
         product_object.save()
+        
+        ''' 
+            uploading images in media folder.
+            had to make changes in config.urls and config.settings so that
+            local server can serve media files.
+            changed file name to randomdigit.
+            need to add server url with productimage.filepath to load in edit file.
+            this addition is done in editproduct.vue file.
+        '''
+        if product_image:
+            for i in product_image:
+                image_url = fileUrlGenerate(i)
+                product_image_object = ProductImage(product_id=product_object.id,file_path=image_url)
+                product_image_object.save()
         product_variants = []
         product_variants_obj = {}
         for i in product_variant:
@@ -154,7 +172,11 @@ class ProductEditView(generic.TemplateView):
         context['variants'] = list(variants.all())
         context['product_obj'] = product_object
 
-        ## generating product variant object to render in edit page
+        ''' image url need to append localhost or ip at which it is running '''
+        product_images = ProductImage.objects.filter(product_id = id).only('').values_list('file_path',flat=True)
+        context['product_image'] = list(product_images.all())
+
+        ''' generating product variant object to render in edit page ''' 
         variants_temp = ProductVariant.objects.filter(product_id=id).only('variant_id','variant_title')
         current_variants = []
         current_variants_temp = {}
@@ -167,7 +189,7 @@ class ProductEditView(generic.TemplateView):
             current_variants.append({'option':i,'tags':current_variants_temp[i]})
         context['product_variant'] = current_variants
 
-        ## generating product_variant_price object to render in edit page
+        ''' generating product_variant_price object to render in edit page '''
         variant_prices = []
         variant_prices_temp = ProductVariantPrice.objects.select_related('product_variant_one','product_variant_two','product_variant_three').filter(product_id = id)
         for j in variant_prices_temp:
@@ -197,6 +219,12 @@ class ProductEditView(generic.TemplateView):
         product_object.sku = product_sku
         product_object.description = product_description
         product_object.save()
+
+        if product_image:
+            for i in product_image:
+                image_url = fileUrlGenerate(i)
+                product_image_object = ProductImage(product_id=product_object.id,file_path=image_url)
+                product_image_object.save()
 
         ProductVariantPrice.objects.filter(product_id=id).delete()
         ProductVariant.objects.filter(product_id=id).delete()
@@ -228,3 +256,9 @@ class ProductEditView(generic.TemplateView):
             temp.save()
         return HttpResponse("Product Saved Succesfully",status=200)
 
+
+''' saving files to media folder while uploading to dropzone.'''
+@method_decorator(csrf_exempt, name='dispatch')
+class ImageUpload(generic.TemplateView):
+    def post(self,request):
+        return HttpResponse("Image Uploaded",status=200)

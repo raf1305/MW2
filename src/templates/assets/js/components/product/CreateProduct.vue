@@ -24,7 +24,7 @@
             <h6 class="m-0 font-weight-bold text-primary">Media</h6>
           </div>
           <div class="card-body border">
-            <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
+            <vue-dropzone v-on:vdropzone-success="fileUpload" ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
           </div>
         </div>
       </div>
@@ -134,11 +134,18 @@ export default {
         url: 'https://httpbin.org/post',
         thumbnailWidth: 150,
         maxFilesize: 0.5,
-        headers: {"My-Awesome-Header": "header value"}
+        headers:  {"X-CSRFToken":this.csrf}
       }
     }
   },
   methods: {
+    fileUpload(){
+      let accepted_files = this.$refs.myVueDropzone.getAcceptedFiles();
+      // for (let i = 0 ; i<accepted_files.length ; i++){
+      //   this.images.push(accepted_files[i].dataURL)
+      // }
+      // console.log(this.images);
+    },
     // it will push a new object into product variant
     newVariant() {
       let all_variants = this.variants.map(el => el.id)
@@ -185,6 +192,12 @@ export default {
 
     // store product into database
     saveProduct() {
+      this.images = []
+      let accepted_files = this.$refs.myVueDropzone.getAcceptedFiles();
+      for (let i = 0 ; i<accepted_files.length ; i++){
+        this.images.push(accepted_files[i].dataURL)
+      }
+      console.log(this.images);
       let product = {
         title: this.product_name,
         sku: this.product_sku,
